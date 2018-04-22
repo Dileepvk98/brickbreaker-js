@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Brick Breaker - Home</title>
+  <link rel="stylesheet" type="text/css" href="style/style.css" title="style" />
+  <script type="text/javascript" src="js/home.js"></script>
+  <script type="text/javascript" src="js/game.js"></script>
+</head>
+
+<body>
+  <div id="main">
+    <div id="header">
+      <div id="logo">
+        <div id="logo_text">
+          <h1>Brick Breaker</h1>
+          <label id="dispUN"><script type="text/javascript">document.write(un)</script></label>
+        </div>
+      </div>
+      <div id="menubar">
+        <ul id="menu">
+          <!-- put class="selected" in the li tag for the selected page - to highlight which page you're on -->
+          <li class="selected"><a >Home</a></li>
+          <li><a href="play.html">play</a></li>
+          <li><a href="about.html">about</a></li>
+          <li><a onclick="logout()">exit</a></li>
+          <!--li id="dispUN">Welcome, </li-->
+        </ul>
+      </div>
+    </div>
+    <div id="site_content">
+        <p style="margin-top:-25px;">
+      <h3 style="color:orangered">Rules</h3>
+        <ul>
+          <li>Control the RED pad.</li>
+          <li>Destroy all blocks to win.</li>
+          <li style="color:midnightblue">Set the difficulty before starting.</li>
+          <li>Click 'PLAY' anytime to restart  or wait and loose :P</li>
+          <li style="color:midnightblue">Refreshing the page or swithcing to another webage will reset the game.</li>
+        </ul> 
+        <h2 style="font-size:20px;margin-top:-10px;">Select Difficulty</h2>
+        <div class="diificulty">
+          <input type="radio" name="rg" value="Easy" id="r1" >&nbsp;Easy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio" name="rg" value="Medium" id="r2"checked>&nbsp;Medium &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio" name="rg" value="Pro" id="r3">&nbsp;Pro&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <button style="background:crimson" onclick="setdifficulty()">Set difficulty</button>
+          <label style="margin-left:20px;color:red" id="diffset"></label>
+        </div>
+        <br> 
+        <h2 style="font-size:20px;margin-top:-10px;">Difficulty settings</h2>
+      <ul>
+        <li>Easy  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;FPS : 50 | Lives : 3</li>
+        <li>Medium &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;FPS : 60 | Lives : 2 | Player pad size decreased</li>
+        <li>Pro &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;FPS : 75 | Lives : 1 | Player pad size decreased even more.</li>
+      </ul>
+      </p>
+    <div id="content"-->
+      
+      </div>
+    </div>
+  </div>
+</body>
+</html>
