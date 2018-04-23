@@ -8,13 +8,14 @@ function logout(){
 var canvas, ctx, ballX,ballY,ballSpeedX=3,ballSpeedY=3;score=0, paddleX=0,lives;
 var PADDLE_LENGTH=100, WINSCORE=2, paddleX=0, score=0, lives,padDelta=0;
 const PADDLE_WIDTH=10;
-var showWinDisp=false, start=true;
+var showWinDisp=false, start=true,pause=true;
 
 var brickWidth = 75, brickHeight = 20;
 var brickPadding = 12.5, brickOffsetTop = 45, brickOffsetLeft = 20;
 var brick_row=4,brick_col=10;
 var bricks = [];
 lives=2;
+
 window.onload=function() {
     
     canvas=document.getElementById("gamecanvas");
@@ -23,42 +24,68 @@ window.onload=function() {
     paddleX=400;
 
     // Retrieve and set difficulty | Lives are 1 less than given variable
-    var fps = localStorage.getItem("diff");   
-    if(fps==60){
-        padDelta=0;   lives=4; brick_row=4;  }
-    else if(fps==75){
-        padDelta=35;  lives=3; brick_row=6; brick_col=13; brickPadding =7; brickWidth = 60, brickHeight = 15; }
-    else if(fps==90){
-        padDelta=55;  lives=2; brick_row=9; brick_col=16; brickPadding =4.5; brickWidth = 50, brickHeight = 10; }
-
+    var fps = localStorage.getItem("diff"); 
+    setDiff(fps);
     for(var r=0; r<brick_row; r++) {
         bricks[r] = [];
         for(var c=0; c<brick_col; c++) {
             bricks[r][c] = { x: 0, y: 0 ,status:1};
         }
-    }
-
-    ballReset();
-
-    setInterval(function (){
-        moveBall();
-        drawEverything();
-    },1000/fps);
+    } 
     canvas.addEventListener('mousedown', 
     function(evt){ 
         if(start){ 
             start=false; 
-        } 
+        }
+        if(pause){ 
+            pause=false; 
+        }
         if(showWinDisp){ 
-            score=0; showWinDisp=false; 
+            score=0; 
+            setDiff(fps); 
+            ballReset();
+             
+            drawBricks(); 
+            showWinDisp=false; 
         } 
     });
     canvas.addEventListener('mousemove',
         function(evt){
             var mousePos=calcMousePos(evt);
             paddleX=mousePos.x-PADDLE_LENGTH/2;
-    });        
+    });   
+    
+    ballReset();
+    setInterval(function (){
+        if(!pause){
+            moveBall();
+        }
+        drawEverything();
+        
+    },1000/60);
 }    
+function createBricksObjs(){
+    for(var r=0; r<brick_row; r++) {
+        bricks[r] = [];
+        for(var c=0; c<brick_col; c++) {
+            bricks[r][c] = { x: 0, y: 0 ,status:1};
+        }
+    }
+}
+function setDiff(fps){  
+    if(fps==60){
+        padDelta=0;   lives=4; brick_row=4;  
+    }
+    else if(fps==75){
+        padDelta=35;  lives=3; brick_row=6; brick_col=13; 
+        brickPadding =7; brickWidth = 60, brickHeight = 15; 
+    }
+    else if(fps==90){
+        padDelta=55;  lives=2; brick_row=9; brick_col=16; 
+        brickPadding =4.5; brickWidth = 50, brickHeight = 10; 
+    }
+    createBricksObjs();
+}
 function calcMousePos(evt){
     //evt is mouse info
     var rect = canvas.getBoundingClientRect();
@@ -81,27 +108,43 @@ function moveBall(){
     if(ballY<10){
         ballSpeedY=-ballSpeedY;
     }
-    if(ballX>paddleX && ballX<paddleX+PADDLE_LENGTH){
-        if(ballY>canvas.height-20){
-            ballSpeedY=-ballSpeedY;
-            if(ballX<paddleX+PADDLE_LENGTH/3 || ballX>paddleX+PADDLE_LENGTH*2/3){
-                 if(ballSpeedX>0) ballSpeedX=4.5;
-                 else ballSpeedX=-4.5;
-            }
-            else{
-                if(ballSpeedX>0) ballSpeedX=3;
-                 else ballSpeedX=-3;
-            }
+    if(ballX>=paddleX && ballX<=paddleX+PADDLE_LENGTH && ballY>=canvas.height-23){
+        ballSpeedY=-ballSpeedY;
+        if(ballX<paddleX+PADDLE_LENGTH/3 || ballX>paddleX+PADDLE_LENGTH*2/3){
+            if(ballSpeedX>0) ballSpeedX=4.5;
+            else ballSpeedX=-4.5;
+        }
+        else{
+            if(ballSpeedX>0) ballSpeedX=3;
+            else ballSpeedX=-3;
         }
     }
     if(ballY>canvas.height-15){
         ballReset();
     }
 }
+function collisionDetect(){                         //collision detection
+    for(var r=0; r<brick_row; r++){
+        for(var c=0; c<brick_col; c++){
+            var b=bricks[r][c];
+            if((ballY>b.y && ballY<b.y+brickHeight) && 
+            (ballX>b.x && ballX<b.x+brickWidth) && b.status==1){
+                score++;   
+                ballSpeedY=-ballSpeedY; 
+                b.status=0;
+                if(score == brick_row*brick_col) {
+                    showWinDisp=true;
+                }
+            }        
+        }
+    }
+}
 function ballReset(){
     lives--;
-    if(lives==0){ showWinDisp=true;}
-    //ballSpeedX=-ballSpeedX;
+    pause=true;
+    if(lives==0){ 
+        showWinDisp=true;
+    }
     ballSpeedY=-3;
     ballX=canvas.width/2;
     ballY=canvas.height-25;
@@ -124,53 +167,35 @@ function drawBricks() {                             //draw grid of bricks
                 var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
                 bricks[r][c].x = brickX;
                 bricks[r][c].y = brickY;
-                colorRect(brickX, brickY, brickWidth, brickHeight,"lime");
+                colorRect(brickX, brickY, brickWidth, brickHeight,"lightslategrey");
             }
         }
     }
 }
-function collisionDetect(){                         //collision detection
-    for(var r=0; r<brick_row; r++){
-        for(var c=0; c<brick_col; c++){
-            var b=bricks[r][c];
-            if((ballY>b.y && ballY<b.y+brickHeight) && 
-            (ballX>b.x && ballX<b.x+brickWidth) && b.status==1){
-                score++;   
-                ballSpeedY=-ballSpeedY; 
-                b.status=0;
-                if(score == brick_row*brick_col) {
-                    showWinDisp=true;
-                }
-            }        
-        }
-    }
-}
+
 function drawEverything(){ 
     //draw black canvas
     ctx.font="25px Arial";
     colorRect(0,0,canvas.width,canvas.height,'black');
     ctx.fillStyle="yellow";
-   if(start){ 
-       ctx.fillText("Click to Start !",canvas.width/2-70,250); return;  
-    }
     if(showWinDisp){
         if(lives==0){ 
-            ctx.fillText("Game Over !",canvas.width/2-65,canvas.height/2-50);    
+            ctx.fillText("Game Over !",canvas.width/2-65,canvas.height/2-10);    
         }
         else{ 
             ctx.fillText("Congratulations You WON !",canvas.width/2-140,canvas.height/2-50); 
         }
-        ctx.fillText("Click to Continue",canvas.width/2-90,300);
-        score=0;
-        drawBricks();
-        return;
+        ctx.fillText("Click to Continue",canvas.width/2-90,280);
+        //return;
     }
     ctx.font="16px Arial";
-    if(lives==3){ padcolor='yellow';}
-    else if(lives==2) { padcolor='orange';}
-    else padcolor="red";
-    colorRect(paddleX,canvas.height-15,PADDLE_LENGTH-padDelta/0.8,PADDLE_WIDTH,padcolor); //draw player pad
-    colorBall(ballX,ballY,10);    //draw ball
+    if(lives==3){ padcolor='gold';}
+    else if(lives==2) { padcolor='orangered';}
+    else padcolor="cyan";
+    //draw player pad
+    colorRect(paddleX,canvas.height-15,PADDLE_LENGTH-padDelta/0.8,PADDLE_WIDTH,padcolor);
+    //draw ball
+    colorBall(ballX,ballY,10);   
     drawBricks();
     collisionDetect();  
     //draw score
@@ -178,7 +203,12 @@ function drawEverything(){
     ctx.fillText("Score : ",20,30);
     ctx.fillText(score,80,30);
     //draw lives
-    ctx.fillStyle="yellow";
+    ctx.fillStyle=padcolor;
     ctx.fillText("Lives : ",canvas.width-85,30);
     ctx.fillText(lives-1,canvas.width-30,30);  
+    if(pause && start){ 
+        ctx.font="20px Arial";
+        ctx.fillText("Click to Start !",canvas.width/2-70,250); 
+        return;
+    }
 }
